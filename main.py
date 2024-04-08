@@ -3,26 +3,8 @@ import curses
 from curses import wrapper
 import sys
 
-# App purpose:
-# add a task
-# track time spent on task
-#
-# Instead of keybinds
-# Use numbers
-
 tasks = []
-
-
-def timer(stdscr):
-    stdscr.clear()
-
-    seconds = 0
-
-    while True:
-        seconds += 1
-        time.sleep(1)
-        stdscr.addstr(str(seconds))
-        stdscr.refresh()
+current_working_task = ""
 
 
 def addTask(stdscr):
@@ -56,8 +38,45 @@ def showTasks(stdscr):
 
     stdscr.refresh()
 
-    stdscr.getkey()
-    wrapper(showKeybinds)
+    wrapper(timer)
+
+
+def timer(stdscr):
+    key = int(stdscr.getkey())
+    current_working_task = tasks[key]
+    second = 0
+
+    stdscr.clear()
+
+    while True:
+        curses.echo()
+        stdscr.clear()
+        stdscr.addstr(
+            r"""
+                    _______ _             _   _ 
+                    |  ____| |           | | (_)
+                    | |__  | | ___   __ _| |_ _ 
+                    |  __| | |/ _ \ / _` | __| |
+                    | |    | | (_) | (_| | |_| |
+                    |_|    |_|\___/ \__,_|\__|_|
+
+                           [ @Leangphok ]
+
+
+        """
+        )
+        second += 1
+
+        time.sleep(1)
+
+        stdscr.addstr("Current Task: " + current_working_task)
+        stdscr.addstr("\n")
+        stdscr.addstr("\n")
+        stdscr.addstr("Time Spent: ", curses.A_BOLD)
+        stdscr.addstr(time.strftime("%M:%S", time.gmtime(second)))
+        stdscr.addstr("\n")
+
+        stdscr.refresh()
 
 
 def showKeybinds(stdscr):
