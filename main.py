@@ -1,6 +1,7 @@
 import time
 import curses
 from curses import wrapper
+import sys
 
 # App purpose:
 # add a task
@@ -9,7 +10,6 @@ from curses import wrapper
 # Instead of keybinds
 # Use numbers
 
-path = ""
 tasks = []
 
 
@@ -34,24 +34,61 @@ def addTask(stdscr):
 
     # Input
     task_name = stdscr.getstr()
-    tasks.append(task_name)
+    tasks.append(task_name.decode())
 
     stdscr.refresh()
 
-    # Go back to Home
-    wrapper(main)
+    wrapper(showKeybinds)
 
 
 def showTasks(stdscr):
-    stdscr.clear()
+    stdscr.addstr("\n")
+
+    task_list = ""
+    i = 0
+
+    while i < len(tasks):
+        task_list += str(i) + ". " + tasks[i] + " "
+        i += 1
+
+    stdscr.addstr(task_list)
+    stdscr.addstr("\n")
+
+    stdscr.refresh()
+
+    stdscr.getkey()
+    wrapper(showKeybinds)
+
+
+def showKeybinds(stdscr):
+    # Keybinds
+    stdscr.addstr("\n")
+    stdscr.addstr("1. Add task ")
+    stdscr.addstr("2. Tasks ")
+    stdscr.addstr("q. Quit")
+    stdscr.addstr("\n")
+
+    # Prompt
+    stdscr.addstr("Home => ", curses.A_BOLD)
+    stdscr.refresh()
+
+    # Add task
+    key = stdscr.getkey()
+    if key == "1":
+        # Go to add tasks
+        wrapper(addTask)
+    # Show tasks
+    elif key == "2":
+        # Go to show tasks
+        wrapper(showTasks)
+    # Quit
+    elif key == "q":
+        sys.exit
 
 
 def main(stdscr):
     curses.echo()
     stdscr.clear()
-
-    # Set Path to home
-    path = "Home"
 
     stdscr.addstr(
         r"""
@@ -68,23 +105,8 @@ def main(stdscr):
     """
     )
 
-    # Keybinds
-    stdscr.addstr("1. Add task ")
-    stdscr.addstr("2. Tasks")
-    stdscr.addstr("\n")
-
-    # Prompt
-    stdscr.addstr(path + " => ", curses.A_BOLD)
-    stdscr.refresh()
-
-    # Add task
-    key = stdscr.getkey()
-    if key == "1":
-        # Go to add tasks
-        wrapper(addTask)
-    elif key == "2":
-        # Go to show tasks
-        wrapper(showTasks)
+    # Show dashboard
+    wrapper(showKeybinds)
 
 
 if __name__ == "__main__":
